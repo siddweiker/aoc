@@ -8,6 +8,7 @@ import (
 	"os"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -59,4 +60,12 @@ func Sscanf(str, format string, a ...interface{}) {
 	if err != nil {
 		log.Printf("error parsing line '%s': %v", str, err)
 	}
+}
+
+func Atoi(str string) int {
+	i, err := strconv.Atoi(str)
+	if err != nil {
+		log.Printf("error parsing number '%s': %v", str, err)
+	}
+	return i
 }
