@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"log"
 )
 
 func init() {
@@ -20,11 +19,7 @@ func Day2(r io.Reader) string {
 		direction := ""
 
 		line := scanner.Text()
-		_, err := fmt.Sscanf(line, "%s %d", &direction, &x)
-		if err != nil {
-			log.Printf("error parsing line '%s': %v", line, err)
-			continue
-		}
+		Sscanf(line, "%s %d", &direction, &x)
 
 		switch direction {
 		case "forward":
