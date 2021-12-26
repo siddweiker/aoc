@@ -83,3 +83,20 @@ func Max(a, b int) int {
 	}
 	return b
 }
+
+// Coming in 1.18
+func Cut(s, sep string) (before, after string, found bool) {
+	if i := strings.Index(s, sep); i >= 0 {
+		return s[:i], s[i+len(sep):], true
+	}
+	return s, "", false
+}
+
+func ContainsAll(s, chars string) bool {
+	for _, c := range chars {
+		if !strings.ContainsRune(s, c) {
+			return false
+		}
+	}
+	return true
+}
