@@ -8,6 +8,7 @@ import (
 	"os"
 	"reflect"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -29,13 +30,13 @@ func main() {
 		filestr = "data/%s.test.txt"
 	}
 
+	names, drivers := Drivers()
 	for i, r := range drivers {
-		funcName := GetFunctionName(r)
-		f, err := os.Open(fmt.Sprintf(filestr, funcName))
+		f, err := os.Open(fmt.Sprintf(filestr, names[i]))
 		if err != nil {
 			defer f.Close()
 		}
-		log.Printf("#%d:%s Answer: %s", i, funcName, r(f))
+		log.Printf("#%d:%s Answer: %s", i, names[i], r(f))
 	}
 }
 
@@ -46,6 +47,29 @@ func Register(r Runner) {
 		panic("Register runner is nil")
 	}
 	drivers = append(drivers, r)
+}
+
+func Drivers() ([]string, []Runner) {
+	named := map[string]Runner{}
+	namesOrder := []string{}
+	for _, r := range drivers {
+		fn := GetFunctionName(r)
+		namesOrder = append(namesOrder, fn)
+		named[fn] = r
+	}
+
+	sort.Slice(namesOrder, func(i, j int) bool {
+		if len(namesOrder[i]) == len(namesOrder[j]) {
+			return namesOrder[i] < namesOrder[j]
+		}
+		return len(namesOrder[i]) < len(namesOrder[j])
+	})
+	runners := make([]Runner, len(namesOrder))
+	for i, fn := range namesOrder {
+		runners[i] = named[fn]
+	}
+
+	return namesOrder, runners
 }
 
 func GetFunctionName(i interface{}) string {
