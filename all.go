@@ -36,7 +36,7 @@ func main() {
 		if err != nil {
 			defer f.Close()
 		}
-		log.Printf("#%d:%s Answer: %s", i, names[i], r(f))
+		log.Printf("%-5s Answer: %s", names[i], r(f))
 	}
 }
 
@@ -108,7 +108,7 @@ func Max(a, b int) int {
 	return b
 }
 
-// Coming in 1.18
+// Available in 1.18
 func Cut(s, sep string) (before, after string, found bool) {
 	if i := strings.Index(s, sep); i >= 0 {
 		return s[:i], s[i+len(sep):], true
