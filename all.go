@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"unicode"
 )
 
 type Runner func(io.Reader) string
@@ -119,6 +120,15 @@ func Cut(s, sep string) (before, after string, found bool) {
 func ContainsAll(s, chars string) bool {
 	for _, c := range chars {
 		if !strings.ContainsRune(s, c) {
+			return false
+		}
+	}
+	return true
+}
+
+func IsLower(s string) bool {
+	for _, r := range s {
+		if !unicode.IsLower(r) && unicode.IsLetter(r) {
 			return false
 		}
 	}
