@@ -33,23 +33,6 @@ func Day14(r io.Reader) string {
 	return fmt.Sprintf("%d, %d", a1, a2)
 }
 
-func MostMinusLeastRunes(counts map[rune]int) int {
-	min, max := 0, 0
-	for _, tot := range counts {
-		if min == 0 && max == 0 {
-			min, max = tot, tot
-			continue
-		}
-		if max < tot {
-			max = tot
-		}
-		if min > tot {
-			min = tot
-		}
-	}
-	return max - min
-}
-
 func Polymerize(start string, rules map[string]rune, early, steps int) (int, int) {
 	counts := map[rune]int{}
 	for _, c := range start {
@@ -81,4 +64,21 @@ func poly(rules map[string]rune, pairs map[string]int, counts map[rune]int) map[
 		newPairs[string(c)+string(p[1])] += count
 	}
 	return newPairs
+}
+
+func MostMinusLeastRunes(counts map[rune]int) int {
+	min, max := 0, 0
+	for _, tot := range counts {
+		if min == 0 && max == 0 {
+			min, max = tot, tot
+			continue
+		}
+		if max < tot {
+			max = tot
+		}
+		if min > tot {
+			min = tot
+		}
+	}
+	return max - min
 }
