@@ -19,12 +19,14 @@ type Runner func(io.Reader) string
 
 var (
 	test      = false
+	day       = 0
 	driversMu sync.RWMutex
 	drivers   = []Runner{}
 )
 
 func main() {
 	flag.BoolVar(&test, "test", false, "Use test file")
+	flag.IntVar(&day, "day", 0, "Specify Day to run")
 	flag.Parse()
 	filestr := "data/%s.txt"
 	if test {
@@ -33,6 +35,9 @@ func main() {
 
 	names, drivers := Drivers()
 	for i, r := range drivers {
+		if day != 0 && day != i+1 {
+			continue
+		}
 		f, err := os.Open(fmt.Sprintf(filestr, names[i]))
 		if err != nil {
 			defer f.Close()
