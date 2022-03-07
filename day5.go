@@ -14,8 +14,8 @@ func init() {
 func Day5(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
 
-	d := diagram{}
-	d2 := diagram{}
+	d := Diagram{}
+	d2 := Diagram{}
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -26,16 +26,17 @@ func Day5(r io.Reader) string {
 		d2.Line(x1, y1, x2, y2)
 	}
 
-	return fmt.Sprintf("%d, %d", d.Intersections(), d2.Intersections())
+	a1, a2 := d.Intersections(), d2.Intersections()
+	return fmt.Sprintf("%d, %d", a1, a2)
 }
 
-type diagram map[image.Point]int
+type Diagram map[image.Point]int
 
-func (d diagram) Set(x, y int) {
+func (d Diagram) Set(x, y int) {
 	d[image.Point{x, y}]++
 }
 
-func (d diagram) Intersections() int {
+func (d Diagram) Intersections() int {
 	total := 0
 	for _, v := range d {
 		if v > 1 {
@@ -45,7 +46,7 @@ func (d diagram) Intersections() int {
 	return total
 }
 
-func (d diagram) Line(x1, y1, x2, y2 int) {
+func (d Diagram) Line(x1, y1, x2, y2 int) {
 	if x1 == x2 && y1 == y2 {
 		d.Set(x1, y1)
 		return
@@ -68,7 +69,7 @@ func (d diagram) Line(x1, y1, x2, y2 int) {
 	}
 }
 
-func (d diagram) StraightLine(x1, y1, x2, y2 int) {
+func (d Diagram) StraightLine(x1, y1, x2, y2 int) {
 	steps := Max(Abs(x1-x2), Abs(y1-y2))
 	if x1 == x2 {
 		if y1 > y2 {

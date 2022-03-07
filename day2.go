@@ -11,9 +11,10 @@ func init() {
 }
 
 func Day2(r io.Reader) string {
+	scanner := bufio.NewScanner(r)
+
 	pos, depth := 0, 0
 	aimdepth, aim := 0, 0
-	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		x := 0
 		direction := ""

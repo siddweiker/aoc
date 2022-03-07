@@ -14,7 +14,7 @@ func init() {
 func Day3(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
 
-	nums := report{}
+	nums := Report{}
 	var numBits int
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -26,23 +26,22 @@ func Day3(r io.Reader) string {
 		nums = append(nums, num)
 	}
 
-	common, least := nums.CountBits(numBits)
-	oxygen, co2 := nums.CountBitsFilter(numBits)
-
-	return fmt.Sprintf("%d, %d", common*least, oxygen*co2)
+	a1, a2 := nums.CountBits(numBits), nums.CountBitsFilter(numBits)
+	return fmt.Sprintf("%d, %d", a1, a2)
 }
 
-type report []uint
+type Report []uint
 
-func (r report) CountBits(lenght int) (common uint, least uint) {
-	for i := lenght - 1; i >= 0; i-- {
+func (r Report) CountBits(length int) uint {
+	common, least := uint(0), uint(0)
+	for i := length - 1; i >= 0; i-- {
 		common |= r.CommonBit(i)
 	}
-	least = (^uint(0) >> (bits.UintSize - lenght)) ^ common
-	return
+	least = (^uint(0) >> (bits.UintSize - length)) ^ common
+	return common * least
 }
 
-func (r report) CommonBit(pos int) uint {
+func (r Report) CommonBit(pos int) uint {
 	if len(r) == 1 {
 		return r[0] & (1 << pos)
 	}
@@ -62,7 +61,7 @@ func (r report) CommonBit(pos int) uint {
 	return 0
 }
 
-func (r report) LeastBit(pos int) uint {
+func (r Report) LeastBit(pos int) uint {
 	if len(r) == 1 {
 		return r[0] & (1 << pos)
 	}
@@ -82,7 +81,7 @@ func (r report) LeastBit(pos int) uint {
 	return 0
 }
 
-func (r report) Filter(f func(uint) bool) []uint {
+func (r Report) Filter(f func(uint) bool) []uint {
 	filtered := make([]uint, 0)
 	for _, v := range r {
 		if f(v) {
@@ -92,11 +91,12 @@ func (r report) Filter(f func(uint) bool) []uint {
 	return filtered
 }
 
-func (r report) CountBitsFilter(lenght int) (common uint, least uint) {
+func (r Report) CountBitsFilter(length int) uint {
+	common, least := uint(0), uint(0)
 	com := r
 	lea := r
 
-	for i := lenght - 1; i >= 0; i-- {
+	for i := length - 1; i >= 0; i-- {
 		com = com.Filter(func(n uint) bool {
 			return n>>(i+1) == common>>(i+1)
 		})
@@ -108,5 +108,5 @@ func (r report) CountBitsFilter(lenght int) (common uint, least uint) {
 		least |= lea.LeastBit(i)
 	}
 
-	return
+	return common * least
 }

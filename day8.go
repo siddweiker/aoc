@@ -14,8 +14,9 @@ func init() {
 }
 
 func Day8(r io.Reader) string {
-	vals := []signalEntry{}
 	scanner := bufio.NewScanner(r)
+
+	vals := []SignalEntry{}
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -24,7 +25,7 @@ func Day8(r io.Reader) string {
 			log.Printf("Failed to split line on ' | ': %s", line)
 			continue
 		}
-		se := signalEntry{}
+		se := SignalEntry{}
 		inF := strings.Fields(in)
 		outF := strings.Fields(out)
 		for i, str := range inF {
@@ -42,21 +43,20 @@ func Day8(r io.Reader) string {
 		vals = append(vals, se)
 	}
 
-	total, total2 := 0, 0
+	a1, a2 := 0, 0
 	for _, v := range vals {
-		total += v.countEasyNums()
-		total2 += v.outputNum()
+		a1 += v.countEasyNums()
+		a2 += v.outputNum()
 	}
-
-	return fmt.Sprintf("%d, %d", total, total2)
+	return fmt.Sprintf("%d, %d", a1, a2)
 }
 
-type signalEntry struct {
+type SignalEntry struct {
 	unique [10]string
 	output [4]string
 }
 
-func (se signalEntry) countEasyNums() int {
+func (se SignalEntry) countEasyNums() int {
 	total := 0
 	for _, s := range se.output {
 		switch len(s) {
@@ -67,7 +67,7 @@ func (se signalEntry) countEasyNums() int {
 	return total
 }
 
-func (se signalEntry) outputNum() int {
+func (se SignalEntry) outputNum() int {
 	nums := [10]string{}
 	for _, s := range se.unique {
 		switch len(s) {

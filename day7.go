@@ -12,9 +12,10 @@ func init() {
 }
 
 func Day7(r io.Reader) string {
+	scanner := bufio.NewScanner(r)
+
 	max := 0
 	vals := []int{}
-	scanner := bufio.NewScanner(r)
 	if scanner.Scan() {
 		line := scanner.Text()
 

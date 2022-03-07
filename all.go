@@ -12,29 +12,34 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 	"unicode"
 )
 
 type Runner func(io.Reader) string
 
-var (
-	test      = false
-	day       = 0
-	driversMu sync.RWMutex
-	drivers   = []Runner{}
-)
+var drivers = struct {
+	sync.RWMutex
+	solutions []Runner
+}{}
 
 func main() {
+	var (
+		test bool
+		day  int
+	)
 	flag.BoolVar(&test, "test", false, "Use test file")
 	flag.IntVar(&day, "day", 0, "Specify Day to run")
 	flag.Parse()
+
 	filestr := "data/%s.txt"
 	if test {
 		filestr = "data/%s.test.txt"
 	}
 
-	names, drivers := Drivers()
-	for i, r := range drivers {
+	names, days := Solutions()
+	var totalRuntime time.Duration
+	for i, r := range days {
 		if day != 0 && day != i+1 {
 			continue
 		}
@@ -42,24 +47,29 @@ func main() {
 		if err != nil {
 			defer f.Close()
 		}
-		log.Printf("%-5s Answer: %s", names[i], r(f))
+		start := time.Now()
+		answer := r(f)
+		ran := time.Since(start)
+		totalRuntime += ran
+		log.Printf("%-5s Answer: %-35s [%s]", names[i], answer, ran)
 	}
+	log.Printf("Total Runtime %s [%s]", strings.Repeat("=", 35), totalRuntime)
 }
 
 func Register(r Runner) {
-	driversMu.Lock()
-	defer driversMu.Unlock()
+	drivers.Lock()
+	defer drivers.Unlock()
 	if r == nil {
 		panic("Register runner is nil")
 	}
-	drivers = append(drivers, r)
+	drivers.solutions = append(drivers.solutions, r)
 }
 
-func Drivers() ([]string, []Runner) {
+func Solutions() ([]string, []Runner) {
 	named := map[string]Runner{}
 	namesOrder := []string{}
-	for _, r := range drivers {
-		fn := GetFunctionName(r)
+	for _, r := range drivers.solutions {
+		fn := getFunctionName(r)
 		namesOrder = append(namesOrder, fn)
 		named[fn] = r
 	}
@@ -78,12 +88,14 @@ func Drivers() ([]string, []Runner) {
 	return namesOrder, runners
 }
 
-func GetFunctionName(i interface{}) string {
+func getFunctionName(i interface{}) string {
 	return strings.TrimPrefix(
 		runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name(),
 		"main.",
 	)
 }
+
+// Simple helper functions
 
 func Sscanf(str, format string, a ...interface{}) {
 	_, err := fmt.Sscanf(str, format, a...)

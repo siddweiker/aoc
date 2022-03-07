@@ -14,7 +14,7 @@ func init() {
 func Day4(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
 
-	boards := []*board{}
+	boards := []*Board{}
 	drawed := []int{}
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -39,15 +39,18 @@ func Day4(r io.Reader) string {
 					total += b[i][j]
 				}
 			}
-			boards = append(boards, &board{
+			boards = append(boards, &Board{
 				numbers:   b,
 				remaining: total,
 			})
 		}
 	}
 
-	bingo := 0
-	lastBingo := 0
+	a1, a2 := PlayBingo(boards, drawed)
+	return fmt.Sprintf("%d, %d", a1, a2)
+}
+
+func PlayBingo(boards []*Board, drawed []int) (bingo, lastBingo int) {
 	for i, n := range drawed {
 		for _, b := range boards {
 			b.Mark(n)
@@ -70,17 +73,17 @@ func Day4(r io.Reader) string {
 		}
 	}
 
-	return fmt.Sprintf("%d, %d", bingo, lastBingo)
+	return
 }
 
-type board struct {
+type Board struct {
 	numbers   [5][5]int
 	marked    [5][5]bool
 	remaining int
 	won       bool
 }
 
-func (b *board) Mark(n int) {
+func (b *Board) Mark(n int) {
 	for i := range b.numbers {
 		for j := range b.numbers[i] {
 			if b.numbers[i][j] == n {
@@ -91,7 +94,7 @@ func (b *board) Mark(n int) {
 	}
 }
 
-func (b *board) Bingo() bool {
+func (b *Board) Bingo() bool {
 	for i := range b.marked {
 		row := true
 		column := true
@@ -112,7 +115,7 @@ func (b *board) Bingo() bool {
 	return false
 }
 
-func (b board) String() string {
+func (b Board) String() string {
 	var out strings.Builder
 	bingo := ""
 	if b.Bingo() {

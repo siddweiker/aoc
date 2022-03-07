@@ -13,8 +13,9 @@ func init() {
 }
 
 func Day12(r io.Reader) string {
-	data := graph{path{}, map[string]path{}}
 	scanner := bufio.NewScanner(r)
+
+	data := CaveGraph{CavePath{}, map[string]CavePath{}}
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -26,16 +27,16 @@ func Day12(r io.Reader) string {
 
 		data.Add(n1, n2)
 	}
-	p1, p2 := data.AllPaths()
-	return fmt.Sprintf("%d, %d", p1, p2)
+	a1, a2 := data.AllPaths()
+	return fmt.Sprintf("%d, %d", a1, a2)
 }
 
-type graph struct {
-	nodes path
-	edges map[string]path
+type CaveGraph struct {
+	nodes CavePath
+	edges map[string]CavePath
 }
 
-type path []string
+type CavePath []string
 
 type visit int
 
@@ -46,7 +47,7 @@ const (
 	Twice
 )
 
-func (g *graph) Add(node, connectedNode string) {
+func (g *CaveGraph) Add(node, connectedNode string) {
 	if connectedNode == "start" {
 		node, connectedNode = connectedNode, node
 	} else if node == "end" {
@@ -76,7 +77,7 @@ func (g *graph) Add(node, connectedNode string) {
 	}
 }
 
-func (g graph) AllPaths() (int, int) {
+func (g CaveGraph) AllPaths() (int, int) {
 	visited := map[string]visit{}
 	for _, node := range g.nodes {
 		if !IsLower(node) {
@@ -97,14 +98,14 @@ func (g graph) AllPaths() (int, int) {
 	return simple, twice
 }
 
-func (g graph) DFS(start string, visited map[string]visit, f func(n string, t bool)) {
+func (g CaveGraph) DFS(start string, visited map[string]visit, f func(n string, t bool)) {
 	if visited[start] != Unlimited {
 		visited[start]++
 	}
 
 	seenTwice := false
 	for k, v := range visited {
-		if g.Small(k) && v == Twice {
+		if g.small(k) && v == Twice {
 			seenTwice = true
 			break
 		}
@@ -113,14 +114,14 @@ func (g graph) DFS(start string, visited map[string]visit, f func(n string, t bo
 
 	for _, node := range g.edges[start] {
 		if visited[node] == NotVisited || visited[node] == Unlimited {
-			g.DFS(node, VisitCopy(visited), f)
+			g.DFS(node, CopyVisited(visited), f)
 		} else if visited[node] == Once && !seenTwice {
-			g.DFS(node, VisitCopy(visited), f)
+			g.DFS(node, CopyVisited(visited), f)
 		}
 	}
 }
 
-func VisitCopy(visited map[string]visit) map[string]visit {
+func CopyVisited(visited map[string]visit) map[string]visit {
 	vc := map[string]visit{}
 	for k, v := range visited {
 		vc[k] = v
@@ -128,11 +129,11 @@ func VisitCopy(visited map[string]visit) map[string]visit {
 	return vc
 }
 
-func (g graph) Small(cave string) bool {
+func (g CaveGraph) small(cave string) bool {
 	return cave != "end" && cave != "start" && IsLower(cave)
 }
 
-func (g graph) String() string {
+func (g CaveGraph) String() string {
 	var out strings.Builder
 	for _, n := range g.nodes {
 		fmt.Fprintf(&out, "%s ", n)
@@ -146,7 +147,7 @@ func (g graph) String() string {
 	return out.String()
 }
 
-func (p path) String() string {
+func (p CavePath) String() string {
 	var out strings.Builder
 	out.WriteRune('[')
 	for i, str := range p {

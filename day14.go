@@ -11,9 +11,10 @@ func init() {
 }
 
 func Day14(r io.Reader) string {
+	scanner := bufio.NewScanner(r)
+
 	template := ""
 	insertions := map[string]rune{}
-	scanner := bufio.NewScanner(r)
 	if scanner.Scan() {
 		template = scanner.Text()
 	}

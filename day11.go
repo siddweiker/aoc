@@ -12,8 +12,9 @@ func init() {
 }
 
 func Day11(r io.Reader) string {
-	data := cavern{}
 	scanner := bufio.NewScanner(r)
+
+	data := Cavern{}
 	lineNum := 0
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -35,22 +36,15 @@ func Day11(r io.Reader) string {
 			break
 		}
 	}
-
 	return fmt.Sprintf("%d, %d", flashes, maxFlashes)
 }
 
-type cavern struct {
+type Cavern struct {
 	octopi  [10][10]uint8
 	flashes int
 }
 
-func (c *cavern) StepN(n int) {
-	for i := 0; i < n; i++ {
-		c.Step()
-	}
-}
-
-func (c *cavern) Step() int {
+func (c *Cavern) Step() int {
 	// Add 1 energy to all
 	for i := range c.octopi {
 		for j := range c.octopi[i] {
@@ -76,7 +70,7 @@ func (c *cavern) Step() int {
 	return flashes
 }
 
-func (c *cavern) flash() bool {
+func (c *Cavern) flash() bool {
 	flashes := 0
 	for i := range c.octopi {
 		for j, octo := range c.octopi[i] {
@@ -120,13 +114,13 @@ func (c *cavern) flash() bool {
 }
 
 // increment adds one up to 10 max
-func (c *cavern) increment(i, j int) {
+func (c *Cavern) increment(i, j int) {
 	if c.octopi[i][j] < 10 {
 		c.octopi[i][j]++
 	}
 }
 
-func (c cavern) String() string {
+func (c Cavern) String() string {
 	var out strings.Builder
 	fmt.Fprintf(&out, "Flashes: %d\n", c.flashes)
 	for i := range c.octopi {

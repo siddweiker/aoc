@@ -12,8 +12,9 @@ func init() {
 }
 
 func Day22(r io.Reader) string {
-	cubes := []Cube{}
 	scanner := bufio.NewScanner(r)
+
+	cubes := []Cube{}
 	for scanner.Scan() {
 		line := scanner.Text()
 		line = strings.ReplaceAll(line, "..", ",")

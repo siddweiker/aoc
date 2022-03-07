@@ -13,20 +13,26 @@ func init() {
 }
 
 func Day18(r io.Reader) string {
-	pairs := []*Pair{}
 	scanner := bufio.NewScanner(r)
+
+	pairs := []*Pair{}
 	for scanner.Scan() {
 		pairs = append(pairs, NewPairs(scanner.Bytes()))
 	}
 
+	a1, a2 := AddSnailFish(pairs)
+	return fmt.Sprintf("%d, %d", a1, a2)
+}
+
+func AddSnailFish(pairs []*Pair) (int, int) {
 	var root *Pair
 	for _, p := range pairs {
 		clone := Clone(p)
 		root = root.Add(clone)
 	}
-	a1 := Magnitude(root)
+	magnitude := Magnitude(root)
 
-	a2 := 0
+	largest := 0
 	for i := 0; i < len(pairs); i++ {
 		for j := 0; j < len(pairs); j++ {
 			if i == j {
@@ -36,13 +42,13 @@ func Day18(r io.Reader) string {
 			pi := Clone(pairs[i])
 			pj := Clone(pairs[j])
 			m := Magnitude(pi.Add(pj))
-			if m > a2 {
-				a2 = m
+			if m > largest {
+				largest = m
 			}
 		}
 	}
 
-	return fmt.Sprintf("%d, %d", a1, a2)
+	return magnitude, largest
 }
 
 type Pair struct {

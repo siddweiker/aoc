@@ -12,8 +12,9 @@ func init() {
 }
 
 func Day23(r io.Reader) string {
-	board := Amphipods{}
 	scanner := bufio.NewScanner(r)
+
+	board := Amphipods{}
 	i := 0
 	for scanner.Scan() {
 		if i == 2 || i == 3 {
@@ -29,7 +30,6 @@ func Day23(r io.Reader) string {
 	a1 := FindLeastEnergy(&board)
 	board.Unfold()
 	a2 := FindLeastEnergy(&board)
-
 	return fmt.Sprintf("%d, %d", a1, a2)
 }
 

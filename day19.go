@@ -13,9 +13,9 @@ func init() {
 
 // Not my best code, I will revisit and improve the algorithm amd code
 func Day19(r io.Reader) string {
-	beacons := []*Scanner{}
 	scanner := bufio.NewScanner(r)
 
+	beacons := []*Scanner{}
 	i := -1
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -32,6 +32,11 @@ func Day19(r io.Reader) string {
 		beacons[i].Points = append(beacons[i].Points, p)
 	}
 
+	a1, a2 := AssembleScanners(beacons)
+	return fmt.Sprintf("%d, %d", a1, a2)
+}
+
+func AssembleScanners(beacons []*Scanner) (int, int) {
 	links := map[*Scanner]*Scanner{}
 	root := beacons[0]
 	beacons = beacons[1:]
@@ -103,7 +108,7 @@ func Day19(r io.Reader) string {
 		}
 	}
 
-	return fmt.Sprintf("%d, %d", len(allUniq), maxManhatten)
+	return len(allUniq), maxManhatten
 }
 
 type Scanner struct {

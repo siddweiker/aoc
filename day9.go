@@ -11,8 +11,9 @@ func init() {
 }
 
 func Day9(r io.Reader) string {
-	caves := heatmap{}
 	scanner := bufio.NewScanner(r)
+
+	caves := Heatmap{}
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -25,17 +26,16 @@ func Day9(r io.Reader) string {
 		caves.nums = append(caves.nums, nums)
 	}
 
-	level, basinArea := caves.risk()
-	return fmt.Sprintf("%d, %d", level, basinArea)
+	a1, a2 := caves.Risk()
+	return fmt.Sprintf("%d, %d", a1, a2)
 }
 
-type heatmap struct {
+type Heatmap struct {
 	nums [][]uint8
 	seen [][]bool
 }
 
-func (h heatmap) risk() (int, int) {
-	level := 0
+func (h Heatmap) Risk() (level int, basinArea int) {
 	areas := &[3]int{}
 	// Find the lowest point in each basin
 	for i := range h.nums {
@@ -61,7 +61,7 @@ func (h heatmap) risk() (int, int) {
 	return level, areas[0] * areas[1] * areas[2]
 }
 
-func (h heatmap) area(i, j int) {
+func (h Heatmap) area(i, j int) {
 	if h.nums[i][j] == 9 {
 		return
 	}
@@ -98,7 +98,7 @@ func (h heatmap) area(i, j int) {
 	h.seen[i][j] = seen
 }
 
-func (h heatmap) basins(x, y int) int {
+func (h Heatmap) basins(x, y int) int {
 	h.seen = make([][]bool, len(h.nums))
 	for i := range h.nums {
 		l := make([]bool, len(h.nums[i]))

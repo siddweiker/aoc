@@ -14,10 +14,11 @@ func init() {
 }
 
 func Day24(r io.Reader) string {
+	scanner := bufio.NewScanner(r)
+
 	alu := &ALU{
 		cmds: [][]Command{},
 	}
-	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := strings.Fields(scanner.Text())
 		if len(line) == 2 {
@@ -29,8 +30,8 @@ func Day24(r io.Reader) string {
 		}
 	}
 
-	min, max := alu.Solve()
-	return fmt.Sprintf("%d, %d", max, min)
+	a1, a2 := alu.Solve()
+	return fmt.Sprintf("%d, %d", a2, a1)
 }
 
 type Command struct {
@@ -75,18 +76,18 @@ func (a *ALU) Solve() (min, max int) {
 	// Check answers
 	vars := a.Run(max)
 	if vars.Get(4) != 0 {
-		log.Panicf("Found solution does not validate: %d %s", max, vars)
+		log.Printf("Found solution does not validate: %d %s", max, vars)
 	}
 	vars = a.Run(min)
 	if vars.Get(4) != 0 {
-		log.Panicf("Found solution does not validate: %d %s", min, vars)
+		log.Printf("Found solution does not validate: %d %s", min, vars)
 	}
 
 	return min, max
 }
 
 func (a *ALU) Recurse(step int, want map[int]*Range) map[int]*Range {
-	// Potential optimization, at step 1, just check all 9 numbers
+	// Potential optimization: at step 1 (or midway?) check all 9 numbers
 	if step == -1 {
 		return want
 	}

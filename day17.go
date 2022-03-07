@@ -14,6 +14,7 @@ func init() {
 
 func Day17(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
+
 	var target image.Rectangle
 	if scanner.Scan() {
 		line := scanner.Text()

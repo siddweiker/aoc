@@ -12,10 +12,10 @@ func init() {
 }
 
 func Day20(r io.Reader) string {
-	enhance := [512]bool{}
-	grid := Floor{}
 	scanner := bufio.NewScanner(r)
 
+	enhance := [512]bool{}
+	grid := Floor{}
 	if scanner.Scan() {
 		for i, c := range scanner.Text() {
 			if c == '#' {
@@ -37,8 +37,13 @@ func Day20(r io.Reader) string {
 		grid.lights = append(grid.lights, row)
 	}
 
+	a1, a2 := Enhance(grid, enhance)
+	return fmt.Sprintf("%d, %d", a1, a2)
+}
+
+func Enhance(grid Floor, enhance [512]bool) (int, int) {
 	nextLit := enhance[0]
-	a1 := 0
+	litTwice := 0
 	for i := 1; i <= 50; i++ {
 		grid = grid.Enhance(enhance)
 		grid.infinitLit = nextLit
@@ -55,11 +60,11 @@ func Day20(r io.Reader) string {
 		}
 
 		if i == 2 {
-			a1 = grid.Lit()
+			litTwice = grid.Lit()
 		}
 	}
 
-	return fmt.Sprintf("%d, %d", a1, grid.Lit())
+	return litTwice, grid.Lit()
 }
 
 type Floor struct {

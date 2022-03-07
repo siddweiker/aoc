@@ -14,8 +14,9 @@ func init() {
 }
 
 func Day16(r io.Reader) string {
-	var byteStr strings.Builder
 	scanner := bufio.NewScanner(r)
+
+	var byteStr strings.Builder
 	if scanner.Scan() {
 		line := scanner.Text()
 
@@ -124,6 +125,5 @@ func Combine(typeID, a, b int) (result int) {
 			result = 1
 		}
 	}
-
 	return
 }

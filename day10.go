@@ -13,9 +13,10 @@ func init() {
 }
 
 func Day10(r io.Reader) string {
+	scanner := bufio.NewScanner(r)
+
 	syntaxErrors := map[rune]int{}
 	incompletes := []int{}
-	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
 		corrupt, incomplete := syntaxError(line)

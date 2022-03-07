@@ -11,9 +11,10 @@ func init() {
 }
 
 func Day1(r io.Reader) string {
+	scanner := bufio.NewScanner(r)
+
 	vals := []int{}
 	rollingVals := []int{}
-	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
 		var num int
@@ -25,7 +26,8 @@ func Day1(r io.Reader) string {
 		}
 	}
 
-	return fmt.Sprintf("%d, %d", countGrowth(vals), countGrowth(rollingVals))
+	a1, a2 := countGrowth(vals), countGrowth(rollingVals)
+	return fmt.Sprintf("%d, %d", a1, a2)
 }
 
 func countGrowth(l []int) int {

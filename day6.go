@@ -12,8 +12,9 @@ func init() {
 }
 
 func Day6(r io.Reader) string {
-	fish := lanternfish{}
 	scanner := bufio.NewScanner(r)
+
+	fish := LanternFish{}
 	if scanner.Scan() {
 		line := scanner.Text()
 
@@ -22,11 +23,11 @@ func Day6(r io.Reader) string {
 		}
 	}
 
-	day1, day2 := Simulate(fish, 80, 256)
-	return fmt.Sprintf("%d, %d", day1, day2)
+	a1, a2 := Simulate(fish, 80, 256)
+	return fmt.Sprintf("%d, %d", a1, a2)
 }
 
-func Simulate(fish lanternfish, day1, day2 int) (int, int) {
+func Simulate(fish LanternFish, day1, day2 int) (int, int) {
 	firstTotal := 0
 	for d := 0; d < day2; d++ {
 		if d+1 == day1 {
@@ -37,12 +38,12 @@ func Simulate(fish lanternfish, day1, day2 int) (int, int) {
 	return firstTotal, fish.Total()
 }
 
-type lanternfish struct {
+type LanternFish struct {
 	ages     [9]int
 	spawning int
 }
 
-func (lf *lanternfish) Age() {
+func (lf *LanternFish) Age() {
 	// Advance the spawning day to "age" everyone down 1 day
 	lf.spawning = (lf.spawning + 1) % 9
 	// Calculate respawn and new(max) age based on the spawning day
@@ -53,7 +54,7 @@ func (lf *lanternfish) Age() {
 	lf.ages[respawn] += lf.ages[new]
 }
 
-func (lf lanternfish) Total() int {
+func (lf LanternFish) Total() int {
 	total := 0
 	for _, num := range lf.ages {
 		total += num
@@ -61,7 +62,7 @@ func (lf lanternfish) Total() int {
 	return total
 }
 
-func (lf lanternfish) String() string {
+func (lf LanternFish) String() string {
 	var out strings.Builder
 	for i := 0; i < len(lf.ages); i++ {
 		j := (lf.spawning + i) % 9

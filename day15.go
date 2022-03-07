@@ -17,8 +17,9 @@ func init() {
 // TODO: A big improvement would be to replace Graph Node maps by an array of length h*w
 // Using the index as a key instead of "x,y" strings
 func Day15(r io.Reader) string {
-	cave := [][]uint8{}
 	scanner := bufio.NewScanner(r)
+
+	cave := [][]uint8{}
 	for scanner.Scan() {
 		line := scanner.Text()
 

@@ -13,9 +13,10 @@ func init() {
 }
 
 func Day13(r io.Reader) string {
+	scanner := bufio.NewScanner(r)
+
 	vals := []image.Point{}
 	folds := []image.Point{}
-	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {

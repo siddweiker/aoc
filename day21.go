@@ -11,11 +11,12 @@ func init() {
 }
 
 func Day21(r io.Reader) string {
+	scanner := bufio.NewScanner(r)
+
 	dice := Dice{
 		p1: Player{},
 		p2: Player{},
 	}
-	scanner := bufio.NewScanner(r)
 	if scanner.Scan() {
 		line := scanner.Text()
 		var num int
@@ -32,7 +33,6 @@ func Day21(r io.Reader) string {
 	a1 := dice.Deterministic()
 	p1w, p2w := dice.Quantum()
 	a2 := Max(p1w, p2w)
-
 	return fmt.Sprintf("%d, %d", a1, a2)
 }
 
