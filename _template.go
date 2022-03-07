@@ -1,4 +1,5 @@
 //go:build exclude
+
 package main
 
 import (
@@ -8,12 +9,13 @@ import (
 )
 
 func init() {
-	Register(DayX)
+	Register(DayXX)
 }
 
-func DayX(r io.Reader) string {
-	vals := []int{}
+func DayXX(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
+
+	vals := []int{}
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -22,5 +24,6 @@ func DayX(r io.Reader) string {
 		vals = append(vals, num)
 	}
 
-	return fmt.Sprintf("%d, %d", 0, 0)
+	a1, a2 := 0, 0
+	return fmt.Sprintf("%d, %d", a1, a2)
 }

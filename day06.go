@@ -8,10 +8,10 @@ import (
 )
 
 func init() {
-	Register(Day6)
+	Register(Day06)
 }
 
-func Day6(r io.Reader) string {
+func Day06(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
 
 	fish := LanternFish{}

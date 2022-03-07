@@ -7,10 +7,10 @@ import (
 )
 
 func init() {
-	Register(Day2)
+	Register(Day02)
 }
 
-func Day2(r io.Reader) string {
+func Day02(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
 
 	pos, depth := 0, 0

@@ -7,10 +7,10 @@ import (
 )
 
 func init() {
-	Register(Day9)
+	Register(Day09)
 }
 
-func Day9(r io.Reader) string {
+func Day09(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
 
 	caves := Heatmap{}
