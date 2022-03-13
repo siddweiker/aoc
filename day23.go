@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"io"
 	"strings"
@@ -21,18 +22,79 @@ func Day23(r io.Reader) string {
 			line := scanner.Text()
 			line = strings.Trim(line, "# ")
 			for j, s := range strings.Split(line, "#") {
-				board.Rooms[j] = append(board.Rooms[j], Burrow(s[0]))
+				board.Rooms[j] = append(board.Rooms[j], rune(s[0]))
 			}
 		}
 		i++
 	}
 
-	a1 := FindLeastEnergy(&board)
+	a1 := FindLeastEnergyAStar(&board)
 	board.Unfold()
-	a2 := FindLeastEnergy(&board)
+	a2 := FindLeastEnergyAStar(&board)
 	return fmt.Sprintf("%d, %d", a1, a2)
 }
 
+// A* Solution
+func FindLeastEnergyAStar(start *Amphipods) int {
+	queue := &PriorityQueueA{}
+	openItems := map[string]*ItemA{}
+	seenItems := map[string]*ItemA{}
+
+	item := &ItemA{start, 0, 0}
+	openItems[start.String()] = item
+	heap.Push(queue, item)
+
+	for queue.Len() > 0 {
+		currentItem := heap.Pop(queue).(*ItemA)
+		current := currentItem.board
+		seenItems[current.String()] = openItems[current.String()]
+		delete(openItems, current.String())
+
+		if current.Sorted() {
+			return currentItem.board.Energy
+		}
+
+		movesIn, movesOut := current.Moves()
+		if len(movesIn) == 0 && len(movesOut) == 0 {
+			continue
+		}
+
+		// Create neighbors
+		neighbors := []*Amphipods{}
+		for _, m := range movesIn {
+			new := current.Copy()
+			new.Enter(m[0], m[1])
+			neighbors = append(neighbors, new)
+		}
+		for _, m := range movesOut {
+			new := current.Copy()
+			new.Leave(m[0], m[1])
+			neighbors = append(neighbors, new)
+		}
+
+		for _, neighbor := range neighbors {
+			if _, ok := seenItems[neighbor.String()]; ok {
+				continue
+			}
+
+			if notVisited, ok := openItems[neighbor.String()]; ok {
+				if notVisited.board.Energy < neighbor.Energy {
+					continue
+				} else {
+					heap.Remove(queue, notVisited.index)
+				}
+			}
+
+			item := &ItemA{neighbor, neighbor.Energy, 0}
+			openItems[neighbor.String()] = item
+			heap.Push(queue, item)
+		}
+	}
+
+	return 0
+}
+
+// Naive Solution, checks every path
 func FindLeastEnergy(d *Amphipods) int {
 	if d.Sorted() {
 		return d.Energy
@@ -64,11 +126,9 @@ func FindLeastEnergy(d *Amphipods) int {
 	return lowest
 }
 
-type Burrow rune
-
 type Amphipods struct {
-	Hallway [11]Burrow
-	Rooms   [4][]Burrow
+	Hallway [11]rune
+	Rooms   [4][]rune
 	Energy  int
 }
 
@@ -148,7 +208,7 @@ func (d *Amphipods) Moves() (in, out [][2]int) {
 
 func (d *Amphipods) Leave(r, h int) {
 	cost := 1
-	var amphi Burrow
+	var amphi rune
 	for i, a := range d.Rooms[r] {
 		if a != 0 {
 			amphi = a
@@ -160,7 +220,7 @@ func (d *Amphipods) Leave(r, h int) {
 
 	cost += Abs(d.ToHallway(r) - h)
 	d.Hallway[h] = amphi
-	d.Energy += cost * amphi.Cost()
+	d.Energy += cost * Cost(amphi)
 }
 
 func (d *Amphipods) Enter(h, r int) {
@@ -177,7 +237,7 @@ func (d *Amphipods) Enter(h, r int) {
 		}
 	}
 
-	d.Energy += cost * amphi.Cost()
+	d.Energy += cost * Cost(amphi)
 }
 
 func (d *Amphipods) ToHallway(r int) int {
@@ -188,7 +248,7 @@ func (d *Amphipods) ToRoom(h int) int {
 	return h/2 - 1
 }
 
-func (d *Amphipods) EnterAllowed(r int, a Burrow) bool {
+func (d *Amphipods) EnterAllowed(r int, a rune) bool {
 	if !d.IsHome(r, a) {
 		return false
 	}
@@ -215,18 +275,8 @@ func (d *Amphipods) LeaveAllowed(r int) bool {
 	return false
 }
 
-func (d *Amphipods) IsHome(r int, a Burrow) bool {
-	switch a {
-	case 'A':
-		return r == 0
-	case 'B':
-		return r == 1
-	case 'C':
-		return r == 2
-	case 'D':
-		return r == 3
-	}
-	return false
+func (d *Amphipods) IsHome(r int, a rune) bool {
+	return int(a)-65-r == 0
 }
 
 func (d *Amphipods) AtDoor(h int) bool {
@@ -256,10 +306,10 @@ func (d *Amphipods) Unfold() {
 	// Insert these amphipods in between existing
 	// #D#C#B#A#
 	// #D#B#A#C#
-	d.Rooms[0] = append(d.Rooms[0][:1], append([]Burrow{'D', 'D'}, d.Rooms[0][1:]...)...)
-	d.Rooms[1] = append(d.Rooms[1][:1], append([]Burrow{'C', 'B'}, d.Rooms[1][1:]...)...)
-	d.Rooms[2] = append(d.Rooms[2][:1], append([]Burrow{'B', 'A'}, d.Rooms[2][1:]...)...)
-	d.Rooms[3] = append(d.Rooms[3][:1], append([]Burrow{'A', 'C'}, d.Rooms[3][1:]...)...)
+	d.Rooms[0] = append(d.Rooms[0][:1], append([]rune{'D', 'D'}, d.Rooms[0][1:]...)...)
+	d.Rooms[1] = append(d.Rooms[1][:1], append([]rune{'C', 'B'}, d.Rooms[1][1:]...)...)
+	d.Rooms[2] = append(d.Rooms[2][:1], append([]rune{'B', 'A'}, d.Rooms[2][1:]...)...)
+	d.Rooms[3] = append(d.Rooms[3][:1], append([]rune{'A', 'C'}, d.Rooms[3][1:]...)...)
 }
 
 func (d *Amphipods) Copy() *Amphipods {
@@ -268,7 +318,7 @@ func (d *Amphipods) Copy() *Amphipods {
 		Energy:  d.Energy,
 	}
 	for r := range d.Rooms {
-		n.Rooms[r] = make([]Burrow, len(d.Rooms[r]))
+		n.Rooms[r] = make([]rune, len(d.Rooms[r]))
 		copy(n.Rooms[r], d.Rooms[r])
 	}
 	return n
@@ -278,7 +328,11 @@ func (d Amphipods) String() string {
 	var out strings.Builder
 	fmt.Fprintf(&out, "\n%s\n#", strings.Repeat("#", 13))
 	for _, a := range d.Hallway {
-		fmt.Fprintf(&out, "%s", a)
+		if a == 0 {
+			out.WriteRune('.')
+		} else {
+			out.WriteRune(a)
+		}
 	}
 
 	fmt.Fprintf(&out, "#\n")
@@ -289,7 +343,7 @@ func (d Amphipods) String() string {
 			fmt.Fprintf(&out, "  #")
 		}
 		for r := range d.Rooms {
-			fmt.Fprintf(&out, "%s#", d.Rooms[r][i])
+			fmt.Fprintf(&out, "%c#", d.Rooms[r][i])
 		}
 		if i == 0 {
 			fmt.Fprintf(&out, "##")
@@ -301,7 +355,7 @@ func (d Amphipods) String() string {
 	return out.String()
 }
 
-func (b Burrow) Cost() int {
+func Cost(b rune) int {
 	switch b {
 	case 'A':
 		return 1
@@ -311,13 +365,49 @@ func (b Burrow) Cost() int {
 		return 100
 	case 'D':
 		return 1000
+	default:
+		return 0
 	}
-	return 0
 }
 
-func (b Burrow) String() string {
-	if b == 0 {
-		return "."
-	}
-	return fmt.Sprintf("%c", b)
+// *Min* Priority Queue, taken from container/heap and modified to be min instead of max
+// An Item is something we manage in a priority queue.
+type ItemA struct {
+	board    *Amphipods
+	priority int // The priority of the item in the queue.
+	// The index is needed by update and is maintained by the heap.Interface methods.
+	index int // The index of the item in the heap.
+}
+
+// A PriorityQueueA implements heap.Interface and holds Items.
+type PriorityQueueA []*ItemA
+
+func (pq PriorityQueueA) Len() int { return len(pq) }
+
+func (pq PriorityQueueA) Less(i, j int) bool {
+	// We want Pop to give us the lowest, not highest, priority so we use less than here.
+	return pq[i].priority < pq[j].priority
+}
+
+func (pq PriorityQueueA) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+
+func (pq *PriorityQueueA) Push(x interface{}) {
+	n := len(*pq)
+	item := x.(*ItemA)
+	item.index = n
+	*pq = append(*pq, item)
+}
+
+func (pq *PriorityQueueA) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	old[n-1] = nil  // avoid memory leak
+	item.index = -1 // for safety
+	*pq = old[0 : n-1]
+	return item
 }

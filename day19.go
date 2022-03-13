@@ -11,7 +11,7 @@ func init() {
 	Register(Day19)
 }
 
-// Not my best code, I will revisit and improve the algorithm amd code
+// Not my best code, I will revisit to improve the algorithm and code
 func Day19(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
 
