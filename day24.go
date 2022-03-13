@@ -96,7 +96,7 @@ func (a *ALU) Recurse(step int, want map[int]*Range) map[int]*Range {
 	found := map[int]*Range{}
 	vars := Variables{}
 	// Check each number 1-9
-	for w := 1; w <= 9; w++ {
+	for w := 9; w > 0; w-- {
 		// Find solutions for w
 		// NOTE: This is a guess and may need to be increased
 		for z := 0; z <= 1000000; z++ {
@@ -112,7 +112,7 @@ func (a *ALU) Recurse(step int, want map[int]*Range) map[int]*Range {
 						Max: PadZeroes(w, 14-step) + got.Max,
 					}
 				} else {
-					found[z].Max = PadZeroes(w, 14-step) + got.Max
+					found[z].Min = PadZeroes(w, 14-step) + got.Min
 				}
 			}
 		}
