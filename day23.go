@@ -41,14 +41,14 @@ func FindLeastEnergyAStar(start *Amphipods) int {
 	seenItems := map[string]*ItemA{}
 
 	item := &ItemA{start, 0, 0}
-	openItems[start.String()] = item
+	openItems[start.ID()] = item
 	heap.Push(queue, item)
 
 	for queue.Len() > 0 {
 		currentItem := heap.Pop(queue).(*ItemA)
 		current := currentItem.board
-		seenItems[current.String()] = openItems[current.String()]
-		delete(openItems, current.String())
+		seenItems[current.ID()] = openItems[current.ID()]
+		delete(openItems, current.ID())
 
 		if current.Sorted() {
 			return currentItem.board.Energy
@@ -73,11 +73,11 @@ func FindLeastEnergyAStar(start *Amphipods) int {
 		}
 
 		for _, neighbor := range neighbors {
-			if _, ok := seenItems[neighbor.String()]; ok {
+			if _, ok := seenItems[neighbor.ID()]; ok {
 				continue
 			}
 
-			if notVisited, ok := openItems[neighbor.String()]; ok {
+			if notVisited, ok := openItems[neighbor.ID()]; ok {
 				if notVisited.board.Energy < neighbor.Energy {
 					continue
 				} else {
@@ -86,7 +86,7 @@ func FindLeastEnergyAStar(start *Amphipods) int {
 			}
 
 			item := &ItemA{neighbor, neighbor.Energy, 0}
-			openItems[neighbor.String()] = item
+			openItems[neighbor.ID()] = item
 			heap.Push(queue, item)
 		}
 	}
@@ -130,6 +130,19 @@ type Amphipods struct {
 	Hallway [11]rune
 	Rooms   [4][]rune
 	Energy  int
+}
+
+func (d *Amphipods) ID() string {
+	var out strings.Builder
+	for r := 0; r < 4; r++ {
+		for _, c := range d.Rooms[r] {
+			out.WriteRune(c)
+		}
+	}
+	for _, c := range d.Hallway {
+		out.WriteRune(c)
+	}
+	return out.String()
 }
 
 func (d *Amphipods) Moves() (in, out [][2]int) {
