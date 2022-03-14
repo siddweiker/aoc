@@ -74,22 +74,35 @@ func (a *ALU) Solve() (min, max int) {
 	}
 
 	// Check answers
-	vars := a.Run(max)
-	if vars.Get(4) != 0 {
-		log.Printf("Found solution does not validate: %d %s", max, vars)
-	}
-	vars = a.Run(min)
-	if vars.Get(4) != 0 {
-		log.Printf("Found solution does not validate: %d %s", min, vars)
-	}
+	// vars := a.Run(max)
+	// if vars.Get(4) != 0 {
+	// 	log.Printf("Found solution does not validate: %d %s", max, vars)
+	// }
+	// vars = a.Run(min)
+	// if vars.Get(4) != 0 {
+	// 	log.Printf("Found solution does not validate: %d %s", min, vars)
+	// }
 
 	return min, max
 }
 
 func (a *ALU) Recurse(step int, want map[int]*Range) map[int]*Range {
-	// Potential optimization: at step 1 (or midway?) check all 9 numbers
-	if step == -1 {
-		return want
+	// Optimization: at step 1 check all 9 numbers
+	if step == 0 {
+		found := map[int]*Range{}
+		for w := 9; w >= 0; w-- {
+			vars := &Variables{}
+			a.RunSavedStep(w, 0, vars)
+			if got, ok := want[vars.Get(4)]; ok {
+				found[0] = &Range{
+					Min: PadZeroes(w, 14-step) + got.Min,
+					Max: PadZeroes(w, 14-step) + got.Max,
+				}
+				return found
+			}
+		}
+
+		return found
 	}
 
 	// Find possible answers
@@ -101,7 +114,8 @@ func (a *ALU) Recurse(step int, want map[int]*Range) map[int]*Range {
 		// NOTE: This is a guess and may need to be increased
 		for z := 0; z <= 1000000; z++ {
 			vars.Set(4, z) // 4 == z
-			a.RunStep(w, step, &vars)
+			// a.RunStep(w, step, &vars)
+			a.RunSavedStep(w, step, &vars) // Optimization
 
 			// Check if z is a previous solution
 			if got, ok := want[vars.Get(4)]; ok {
@@ -157,6 +171,22 @@ func (a *ALU) RunStep(input, i int, vars *Variables) {
 			}
 		}
 	}
+}
+
+// Manually written out Command based on what each step has in common
+func (a *ALU) RunSavedStep(input, i int, vars *Variables) {
+	vars.Set(1, input)
+	z := vars.Get(4)
+	x := (z % 26) + a.cmds[i][5].val
+	z = z / a.cmds[i][4].val
+	if x != input {
+		x = 1
+	} else {
+		x = 0
+	}
+	z *= 25*x + 1
+	z += (input + a.cmds[i][15].val) * x
+	vars.Set(4, z)
 }
 
 func (a *ALU) AddCmd(cmd string, r1, r2 rune, val int) {
