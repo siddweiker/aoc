@@ -12,11 +12,7 @@ func init() {
 	Register(Day02)
 }
 
-var possibleCubes = map[string]int{
-	"red":   12,
-	"green": 13,
-	"blue":  14,
-}
+var possibleCubes = cubes{12, 13, 14}
 
 func Day02(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
@@ -33,11 +29,7 @@ func Day02(r io.Reader) string {
 
 func parseCubeGame(line string) (int, int) {
 	var score int
-	maxCubes := map[string]int{
-		"red":   0,
-		"green": 0,
-		"blue":  0,
-	}
+	maxCubes := cubes{}
 	game, pulls, found := strings.Cut(line, ": ")
 	if !found {
 		log.Printf("error parsing line: %s: could not split on ': '", line)
@@ -58,16 +50,16 @@ func parseCubeGame(line string) (int, int) {
 				log.Printf("error parsing cube: %s: %s", cube, err)
 				continue
 			}
-
-			if v, ok := possibleCubes[color]; ok {
-				if n > v {
-					score = 0
-				}
-				maxCubes[color] = max(n, maxCubes[color])
-			} else {
-				log.Printf("error color not found: %s: %s", color, err)
+			idx, err := possibleCubes.index(color)
+			if err != nil {
+				log.Printf("error: %s", err)
 				continue
 			}
+
+			if n > possibleCubes[idx] {
+				score = 0
+			}
+			maxCubes[idx] = max(n, maxCubes[idx])
 		}
 	}
 
@@ -76,4 +68,18 @@ func parseCubeGame(line string) (int, int) {
 		minScore *= v
 	}
 	return score, minScore
+}
+
+type cubes [3]int
+
+func (c *cubes) index(color string) (int, error) {
+	switch color {
+	case "red":
+		return 0, nil
+	case "green":
+		return 1, nil
+	case "blue":
+		return 2, nil
+	}
+	return -1, fmt.Errorf("color not found: %s", color)
 }

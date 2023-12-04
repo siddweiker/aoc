@@ -2,9 +2,9 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
-	"strconv"
 	"strings"
 )
 
@@ -33,7 +33,7 @@ func getEdgeInt(line string) (int, int) {
 	var leftW, rightW int
 	for i, j := 0, len(line)-1; i < len(line); i, j = i+1, j-1 {
 		if left == 0 {
-			if n, err := strconv.Atoi(string(line[i])); err == nil {
+			if n, err := byteToInt(line[i]); err == nil {
 				left = n
 				if leftW == 0 {
 					leftW = n
@@ -49,7 +49,7 @@ func getEdgeInt(line string) (int, int) {
 		}
 
 		if right == 0 {
-			if n, err := strconv.Atoi(string(line[j])); err == nil {
+			if n, err := byteToInt(line[j]); err == nil {
 				right = n
 				if rightW == 0 {
 					rightW = n
@@ -65,4 +65,12 @@ func getEdgeInt(line string) (int, int) {
 		}
 	}
 	return left*10 + right, leftW*10 + rightW
+}
+
+func byteToInt(b byte) (int, error) {
+	if b < '0' || b > '9' {
+		return 0, errors.New("invalid int")
+
+	}
+	return int(b - 48), nil
 }
