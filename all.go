@@ -112,11 +112,8 @@ func Atoi(str string) int {
 	return i
 }
 
-func Abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
+func Abs(n int) int {
+	return max(n, -n)
 }
 
 func ContainsAll(s, chars string) bool {
